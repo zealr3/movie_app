@@ -115,7 +115,7 @@ class _HomePageState extends State<HomePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => MovieListScreen(category: 'Popular'),
+                    builder: (context) => MovieListScreen(category: 'Popular Movies'),
                   ),
                 );
               },
@@ -130,7 +130,7 @@ class _HomePageState extends State<HomePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => MovieListScreen(category: 'Top Rated'),
+                    builder: (context) => MovieListScreen(category: 'Top Rated Movies'),
                   ),
                 );
               },

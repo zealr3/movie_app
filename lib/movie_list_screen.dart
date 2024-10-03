@@ -48,7 +48,7 @@ class _MovieListScreenState extends State<MovieListScreen> {
     List<Movie> fetchedMovies;
     try {
       switch (widget.category) {
-        case 'Popular':
+        case 'Popular Movies':
           fetchedMovies = await MovieService().fetchPopularMovies(page: currentPage);
           break;
         case 'Top Rated':
