@@ -55,7 +55,7 @@ class MovieDetailsPage extends StatelessWidget {
 
           var movie = snapshot.data!;
           var genres = (movie['genres'] as List).map((genre) => genre['name']).toList().join(', ');
-          var cast = (movie['credits']['cast'] as List).take(5).toList();
+          var cast = (movie['credits']['cast'] as List).take(10).toList();
 
           return Container(
             decoration: BoxDecoration(
