@@ -17,7 +17,7 @@ class _SearchPageState extends State<SearchPage> {
 
   // Set a limit for the number of results to show
   final int _resultLimit = 10;
-
+  
   // Debounce the search input to avoid firing multiple API requests
   void _onSearchChanged() {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
@@ -32,18 +32,26 @@ class _SearchPageState extends State<SearchPage> {
     });
   }
 
+  // Clear the search input and results
+  void _clearSearch() {
+    _searchController.clear();
+    setState(() {
+      _searchResults = null;
+    });
+  }
+
   // Search movies using the MovieService
   void _searchMovies() {
-  setState(() {
-    _searchResults = MovieService().searchMovies(_searchController.text).catchError((error) {
-      print("Error fetching movies: $error");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error fetching movies. Please try again.')),
-      );
-      return <Movie>[]; // Return an empty list on error
+    setState(() {
+      _searchResults = MovieService().searchMovies(_searchController.text).catchError((error) {
+        print("Error fetching movies: $error");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error fetching movies. Please try again.')),
+        );
+        return <Movie>[]; // Return an empty list on error
+      });
     });
-  });
-}
+  }
 
   @override
   void initState() {
@@ -79,6 +87,12 @@ class _SearchPageState extends State<SearchPage> {
                 ),
                 labelText: 'Search Movies',
                 prefixIcon: Icon(Icons.search),
+                suffixIcon: _searchController.text.isNotEmpty
+                    ? IconButton(
+                        icon: Icon(Icons.clear),
+                        onPressed: _clearSearch,
+                      )
+                    : null,
               ),
               onSubmitted: (_) => _searchMovies(),
             ),
@@ -88,10 +102,13 @@ class _SearchPageState extends State<SearchPage> {
               future: _searchResults,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: SpinKitFadingCircle(color: Colors.black)); // Custom loading spinner
+                  return Center(
+                    child: SpinKitFadingCircle(color: Colors.black), // Custom loading spinner
+                  );
                 } else if (snapshot.hasError) {
-                  print("Error fetching movies: ${snapshot.error}");
-                  return Center(child: Text('Error occurred: ${snapshot.error}'));
+                  return Center(
+                    child: Text('Error occurred: ${snapshot.error}'),
+                  );
                 } else if (snapshot.hasData) {
                   final movies = snapshot.data!;
                   if (movies.isEmpty) {
@@ -145,7 +162,9 @@ class _SearchPageState extends State<SearchPage> {
                     },
                   );
                 } else {
-                  return Center(child: Text('Start typing to search for movies.'));
+                  return Center(
+                    child: Text('Start typing to search for movies.'),
+                  );
                 }
               },
             ),

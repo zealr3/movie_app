@@ -34,7 +34,7 @@ class _MovieListScreenState extends State<MovieListScreen> {
 
   void _scrollListener() {
     if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent && !isLoading) {
-      _fetchMovies(); // Fetch more movies when we reach the bottom of the list
+      _fetchMovies();  // Fetch more movies when we reach the bottom of the list
     }
   }
 
@@ -48,14 +48,14 @@ class _MovieListScreenState extends State<MovieListScreen> {
     List<Movie> fetchedMovies;
     try {
       switch (widget.category) {
-        case 'Popular Movies':
+        case 'Popular':
           fetchedMovies = await MovieService().fetchPopularMovies(page: currentPage);
           break;
         case 'Top Rated':
           fetchedMovies = await MovieService().fetchTopRatedMovies(page: currentPage);
           break;
-        case 'NowPlaying Movies':
-          fetchedMovies = await MovieService().fetchNowPlayingMovies(page: currentPage);
+        case 'New Movies':
+          fetchedMovies = await MovieService().fetchNewMovies(page: currentPage);
           break;
         default:
           throw Exception('Unknown category');
@@ -114,7 +114,7 @@ class _MovieListScreenState extends State<MovieListScreen> {
                 ),
                 SizedBox(width: 10),
                 Text(
-                  widget.category,
+                  '${widget.category} Movies',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
@@ -142,7 +142,7 @@ class _MovieListScreenState extends State<MovieListScreen> {
                       if (index == movies.length) {
                         return isLoading
                             ? Center(child: CircularProgressIndicator())
-                            : Container(); // Return an empty container at the bottom
+                            : Container();  // Return an empty container at the bottom
                       }
 
                       final movie = movies[index];
@@ -185,6 +185,26 @@ class _MovieListScreenState extends State<MovieListScreen> {
                                   ),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Text(
+                                  'Release Date: ${movie.releaseDate}',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Text(
+                                  'Rating: ${movie.rating}',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.amber,
+                                  ),
                                 ),
                               ),
                             ],

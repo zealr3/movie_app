@@ -16,7 +16,7 @@ class MovieApp extends StatelessWidget {
       debugShowCheckedModeBanner: false, // Remove debug banner
       home: First(), // Initial route is the First screen
       routes: {
-        '/signup': (context) => SignUpPage(),
+        '/signup': (context) => SignupPage(),
         '/login': (context) => LoginPage(),
         '/home': (context) => HomePage(),
         // Define the route for MovieListScreen that accepts parameters

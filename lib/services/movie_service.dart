@@ -5,6 +5,8 @@ import 'dart:convert';
 class MovieService {
   final String apiKey = '565b880331fb02dfe1fc15149be91f15'; // Replace with your TMDB API key
 
+  
+
   // Fetch popular movies
   Future<List<Movie>> fetchPopularMovies({int page = 1}) async {
     try {
@@ -27,6 +29,8 @@ class MovieService {
       throw Exception('Error fetching popular movies: $e');
     }
   }
+
+  
 
   // Fetch top-rated movies
   Future<List<Movie>> fetchTopRatedMovies({int page = 1}) async {
@@ -51,8 +55,8 @@ class MovieService {
     }
   }
 
-  // Fetch now-playing movies
-  Future<List<Movie>> fetchNowPlayingMovies({int page = 1}) async {
+  // Fetch new movies
+  Future<List<Movie>> fetchNewMovies({int page = 1}) async {
     try {
       final response = await http.get(
         Uri.parse('https://api.themoviedb.org/3/movie/now_playing?api_key=$apiKey&page=$page'),
@@ -67,10 +71,10 @@ class MovieService {
         }
         return [];
       } else {
-        throw Exception('Failed to load now-playing movies: ${response.reasonPhrase}');
+        throw Exception('Failed to load new movies: ${response.reasonPhrase}');
       }
     } catch (e) {
-      throw Exception('Error fetching now-playing movies: $e');
+      throw Exception('Error fetching new movies: $e');
     }
   }
 

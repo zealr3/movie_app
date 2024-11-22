@@ -1,163 +1,142 @@
 import 'package:flutter/material.dart';
+import 'package:movie_app/services/watchlist_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:movie_app/models/movie.dart'; // Assuming this is defined
 
-class ProfilePage extends StatelessWidget {
-  // Dummy user data (you can replace this with data from a database or API)
-  final String userName = 'John Doe';
-  final String email = 'john.doe@example.com';
-  final int moviesDownloaded = 12;
-  final List<String> watchlist = [
-    'Movie 1',
-    'Movie 2',
-    'Movie 3',
-  ];
+class ProfilePage extends StatefulWidget {
+  @override
+  _ProfilePageState createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  String? userEmail;
+  String? userName;
+  List<Movie>? watchlist;
+  bool isLoading = true;
+  bool isError = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _getUserInfo();
+    _fetchWatchlist();
+  }
+
+  // Fetch user info from SharedPreferences
+  Future<void> _getUserInfo() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      setState(() {
+        userEmail = prefs.getString('email');
+        userName = prefs.getString('name');
+      });
+    } catch (e) {
+      print('Error retrieving user info: $e');
+      setState(() {
+        isError = true;
+      });
+    }
+  }
+
+  // Fetch watchlist from your service
+Future<void> _fetchWatchlist() async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token') ?? '';
+    final watchlistService = WatchlistService(token);
+
+    final fetchedWatchlist = await watchlistService.getWatchlist();
+    setState(() {
+      watchlist = fetchedWatchlist;
+    });
+  } catch (e) {
+    print('Error fetching watchlist: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Failed to load watchlist')),
+    );
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Profile'),
+        title: Text('Profile', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.black,
       ),
-      body: Container(
-        padding: EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.black, Colors.grey[900]!],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Profile section
-            Row(
-              children: [
-                CircleAvatar(
-                  radius: 40,
-                  backgroundImage: NetworkImage(
-                      'https://www.example.com/profile-image.jpg'), // Add user image URL
-                ),
-                SizedBox(width: 20),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      userName,
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    SizedBox(height: 5),
-                    Text(
-                      email,
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey[400],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            SizedBox(height: 30),
+      body: isLoading
+          ? Center(child: CircularProgressIndicator()) // Show a loading indicator while fetching data
+          : isError
+              ? Center(child: Text('Error loading profile data', style: TextStyle(color: Colors.red)))
+              : SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // User Info Section
+                        Text(
+                          userName ?? 'Name not available',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                          userEmail ?? 'Email not available',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white70,
+                          ),
+                        ),
+                        SizedBox(height: 30),
 
-            // Movies downloaded section
-            Card(
-              color: Colors.grey[800],
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Movies Downloaded',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
-                      ),
+                        // Watchlist Section
+                        Text(
+                          'Watchlist',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        watchlist == null
+                            ? Center(child: CircularProgressIndicator()) // Loading state for watchlist
+                            : watchlist!.isEmpty
+                                ? Text(
+                                    'Your watchlist is empty.',
+                                    style: TextStyle(color: Colors.white70),
+                                  )
+                                : ListView.builder(
+                                    shrinkWrap: true,
+                                    physics: NeverScrollableScrollPhysics(),
+                                    itemCount: watchlist!.length,
+                                    itemBuilder: (context, index) {
+                                      final movie = watchlist![index];
+                                      return ListTile(
+                                        title: Text(
+                                          movie.title,
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                        subtitle: Text(
+                                          movie.releaseDate,
+                                          style: TextStyle(color: Colors.white70),
+                                        ),
+                                        trailing: Icon(
+                                          Icons.movie,
+                                          color: Colors.white,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                      ],
                     ),
-                    Text(
-                      '$moviesDownloaded',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(height: 20),
-
-            // Watchlist section
-            Text(
-              'Watchlist',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            SizedBox(height: 10),
-            Expanded(
-              child: ListView.builder(
-                itemCount: watchlist.length,
-                itemBuilder: (context, index) {
-                  return Card(
-                    color: Colors.grey[800],
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: ListTile(
-                      title: Text(
-                        watchlist[index],
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      trailing: Icon(Icons.arrow_forward, color: Colors.white),
-                      onTap: () {
-                        // Navigate to movie details when clicked
-                      },
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            // Logout button
-            SizedBox(height: 20),
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  // Implement logout functionality
-                  Navigator.pop(context); // Temporarily pops back for now
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red, // Logout button color
-                  padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
                   ),
                 ),
-                child: Text(
-                  'Logout',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
