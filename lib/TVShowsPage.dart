@@ -64,44 +64,49 @@ class TVShowsPage extends StatelessWidget {
                       ),
                     );
                   },
-                  child: Card(
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(15.0),
-                            topRight: Radius.circular(15.0),
-                          ),
-                          child: Image.network(
-                            imageUrl,
-                            fit: BoxFit.cover,
-                            height: 180,
-                            width: double.infinity,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            tvShows[index]['name'] ?? 'No Name',
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: Text(
-                            'Rating: ${tvShows[index]['vote_average']?.toString() ?? 'N/A'}',
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  child:Card(
+  elevation: 4,
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(15.0),
+  ),
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      ClipRRect(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(15.0),
+          topRight: Radius.circular(15.0),
+        ),
+        child: Image.network(
+          imageUrl,
+          fit: BoxFit.cover,
+          height: 180,
+          width: double.infinity,
+        ),
+      ),
+      Expanded( // Ensures the text and layout stay within bounds
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            tvShows[index]['name'] ?? 'No Name',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            overflow: TextOverflow.ellipsis, // Ensures text doesn't overflow
+            maxLines: 2, // Limits the text to 2 lines
+          ),
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.only(left: 8.0, bottom: 8.0), // Add bottom padding
+        child: Text(
+          'Rating: ${tvShows[index]['vote_average']?.toString() ?? 'N/A'}',
+          style: TextStyle(color: Colors.grey),
+        ),
+      ),
+    ],
+  ),
+)
+
+
                 );
               },
             );

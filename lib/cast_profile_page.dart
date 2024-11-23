@@ -3,7 +3,6 @@ import 'package:http/http.dart' as http;
 import 'package:movie_app/moviedetails.dart';
 import 'dart:convert';
 
-
 class CastProfilePage extends StatelessWidget {
   final int actorId;
 
@@ -26,6 +25,10 @@ class CastProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Cast Profile'),
+        backgroundColor: Colors.black,
+      ),
       body: FutureBuilder<Map<String, dynamic>>(
         future: fetchActorDetails(),
         builder: (context, snapshot) {
@@ -52,29 +55,6 @@ class CastProfilePage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Top bar with back button
-                  Container(
-                    padding: EdgeInsets.only(top: 40, left: 20, right: 20),
-                    decoration: BoxDecoration(
-                      color: Colors.black,
-                      borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
-                    ),
-                    child: Row(
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.arrow_back, color: Colors.white),
-                          onPressed: () {
-                            Navigator.pop(context); // Navigate back
-                          },
-                        ),
-                        SizedBox(width: 10),
-                        Text(
-                          actor['name'],
-                          style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                  ),
                   // Actor's Profile Image
                   Padding(
                     padding: const EdgeInsets.all(20.0),

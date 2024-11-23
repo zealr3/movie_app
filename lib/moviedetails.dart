@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:movie_app/cast_profile_page.dart';
 import 'package:movie_app/services/watchlist_service.dart';
 import 'dart:convert';
-import 'package:url_launcher/url_launcher.dart'; // Import the url_launcher package
+import 'package:url_launcher/url_launcher.dart'; // Import url_launcher package
 
 class MovieDetailsPage extends StatefulWidget {
   final int movieId;
@@ -15,9 +16,8 @@ class MovieDetailsPage extends StatefulWidget {
 
 class _MovieDetailsPageState extends State<MovieDetailsPage> {
   late Future<Map<String, dynamic>> movieDetailsFuture;
-  bool isInWatchlist = false; // Track if the movie is in the watchlist
+  bool isInWatchlist = false;
 
-  // Initialize the future with the movie details
   @override
   void initState() {
     super.initState();
@@ -26,7 +26,7 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
 
   Future<Map<String, dynamic>> fetchMovieDetails() async {
     final url =
-        'https://api.themoviedb.org/3/movie/${widget.movieId}?api_key=YOUR_API_KEY&append_to_response=credits';
+        'https://api.themoviedb.org/3/movie/${widget.movieId}?api_key=565b880331fb02dfe1fc15149be91f15&append_to_response=credits';
     final response = await http.get(Uri.parse(url));
 
     if (response.statusCode == 200) {
@@ -36,23 +36,29 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
     }
   }
 
-  // Handle adding/removing from watchlist
   void toggleWatchlist(int movieId) async {
     try {
       if (isInWatchlist) {
-        // Call WatchlistService to remove from watchlist
         await WatchlistService('your_token').removeFromWatchlist(movieId);
       } else {
-        // Call WatchlistService to add to watchlist
         await WatchlistService('your_token').addToWatchlist(movieId);
       }
 
       setState(() {
-        isInWatchlist = !isInWatchlist; // Toggle the watchlist state
+        isInWatchlist = !isInWatchlist;
       });
     } catch (error) {
-      // Handle any errors here
       print('Error updating watchlist: $error');
+    }
+  }
+
+  // Method to launch the TMDB URL
+  void _launchTMDBPage(int movieId) async {
+    final url = 'https://www.themoviedb.org/movie/$movieId';
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
     }
   }
 
@@ -69,16 +75,14 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
           } else if (!snapshot.hasData) {
             return Center(child: Text('No data found'));
           }
-        
+
           var movie = snapshot.data!;
           var genres = (movie['genres'] as List).map((genre) => genre['name']).toList().join(', ');
-          var cast = (movie['credits']['cast'] as List).take(5).toList();
           var releaseDate = movie['release_date'] ?? 'Unknown Release Date';
           var rating = movie['vote_average'] != null ? movie['vote_average'].toString() : 'N/A';
           var overview = movie['overview'] ?? 'No overview available.';
-
-          // Build the movie's TMDb page URL
-          final tmdbUrl = 'https://www.themoviedb.org/movie/${widget.movieId}';
+          
+          var cast = (movie['credits']['cast'] as List).take(5).toList();
 
           return Container(
             decoration: BoxDecoration(
@@ -92,7 +96,6 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Top bar with back arrow and title
                   Container(
                     padding: EdgeInsets.only(top: 40, left: 20, right: 20),
                     decoration: BoxDecoration(
@@ -122,7 +125,6 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
                       ],
                     ),
                   ),
-                  // Movie Poster
                   Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: ClipRRect(
@@ -147,7 +149,6 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
                             ),
                     ),
                   ),
-                  // Movie Title
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
                     child: Text(
@@ -159,7 +160,6 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
                       ),
                     ),
                   ),
-                  // Release Date & Rating
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
                     child: Row(
@@ -176,7 +176,6 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
                       ],
                     ),
                   ),
-                  // Genres
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
                     child: Text(
@@ -184,7 +183,6 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
                       style: TextStyle(fontSize: 16, color: Colors.white70),
                     ),
                   ),
-                  // Add to Watchlist Button
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
                     child: ElevatedButton(
@@ -211,43 +209,89 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
                       ),
                     ),
                   ),
-                  // Overview
                   Padding(
                     padding: const EdgeInsets.all(20.0),
-                    child: Text(
-                      overview,
-                      style: TextStyle(fontSize: 16, color: Colors.white),
-                    ),
-                  ),
-                  // More Info Button (Redirect to TMDb)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        if (await canLaunch(tmdbUrl)) {
-                          await launch(tmdbUrl);
-                        } else {
-                          throw 'Could not launch $tmdbUrl';
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 15.0),
-                        backgroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Cast',
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                         ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.info, color: Colors.white), // Info icon
-                          SizedBox(width: 10),
-                          Text(
-                            'More Info',
-                            style: TextStyle(fontSize: 18, color: Colors.white),
-                          ),
-                        ],
-                      ),
+                        SizedBox(height: 10),
+                        cast.isEmpty
+                            ? Text(
+                                'No cast information available.',
+                                style: TextStyle(color: Colors.white70),
+                              )
+                            : ListView.builder(
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemCount: cast.length,
+                                itemBuilder: (context, index) {
+                                  var actor = cast[index];
+                                  return ListTile(
+                                    leading: actor['profile_path'] != null
+                                        ? ClipOval(
+                                            child: Image.network(
+                                              'https://image.tmdb.org/t/p/w500${actor['profile_path']}',
+                                              width: 50,
+                                              height: 50,
+                                              fit: BoxFit.cover,
+                                            ),
+                                          )
+                                        : CircleAvatar(
+                                            backgroundColor: Colors.grey,
+                                            child: Icon(Icons.person, color: Colors.white),
+                                          ),
+                                    title: GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => CastProfilePage(actorId: actor['id']),
+                                          ),
+                                        );
+                                      },
+                                      child: Text(
+                                        actor['name'],
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                                    subtitle: Text(
+                                      actor['character'] ?? 'Character not available',
+                                      style: TextStyle(color: Colors.white70),
+                                    ),
+                                  );
+                                },
+                              ),
+                        SizedBox(height: 20),
+                        Padding(
+  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+  child: ElevatedButton(
+    onPressed: () => _launchTMDBPage(widget.movieId), // Launch TMDB page
+    style: ElevatedButton.styleFrom(
+      padding: EdgeInsets.symmetric(vertical: 15.0),
+      backgroundColor: Colors.blue, // Button color
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(30),
+      ),
+    ),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.info_outline, color: Colors.white), // Added info icon
+        SizedBox(width: 10),
+        Text(
+          'More Info',
+          style: TextStyle(fontSize: 18, color: Colors.white), // Updated text style
+        ),
+      ],
+    ),
+  ),
+),
+
+                      ],
                     ),
                   ),
                 ],

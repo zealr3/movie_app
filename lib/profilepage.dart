@@ -1,142 +1,104 @@
 import 'package:flutter/material.dart';
-import 'package:movie_app/services/watchlist_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:movie_app/models/movie.dart'; // Assuming this is defined
+import 'login.dart';
 
 class ProfilePage extends StatefulWidget {
+  const ProfilePage({Key? key}) : super(key: key);
+
   @override
   _ProfilePageState createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  String? userEmail;
   String? userName;
-  List<Movie>? watchlist;
-  bool isLoading = true;
-  bool isError = false;
+  String? userEmail;
 
   @override
   void initState() {
     super.initState();
-    _getUserInfo();
-    _fetchWatchlist();
+    _loadUserData();
   }
 
-  // Fetch user info from SharedPreferences
-  Future<void> _getUserInfo() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      setState(() {
-        userEmail = prefs.getString('email');
-        userName = prefs.getString('name');
-      });
-    } catch (e) {
-      print('Error retrieving user info: $e');
-      setState(() {
-        isError = true;
-      });
-    }
-  }
-
-  // Fetch watchlist from your service
-Future<void> _fetchWatchlist() async {
-  try {
+  Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token') ?? '';
-    final watchlistService = WatchlistService(token);
-
-    final fetchedWatchlist = await watchlistService.getWatchlist();
     setState(() {
-      watchlist = fetchedWatchlist;
+      userEmail = prefs.getString('email') ?? 'a@gmail.com';
+      // Extracting the part before "@" from the email to set as username
+      userName = userEmail?.split('@')[0] ?? 'Unknown User';
     });
-  } catch (e) {
-    print('Error fetching watchlist: $e');
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Failed to load watchlist')),
+  }
+
+  Future<void> _logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear(); // Clear all stored preferences
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginPage()),
     );
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Profile', style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.black,
+        title: const Text('Profile Page'),
+        backgroundColor: const Color(0xFF7A9999),
       ),
-      body: isLoading
-          ? Center(child: CircularProgressIndicator()) // Show a loading indicator while fetching data
-          : isError
-              ? Center(child: Text('Error loading profile data', style: TextStyle(color: Colors.red)))
-              : SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        // User Info Section
-                        Text(
-                          userName ?? 'Name not available',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        Text(
-                          userEmail ?? 'Email not available',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.white70,
-                          ),
-                        ),
-                        SizedBox(height: 30),
-
-                        // Watchlist Section
-                        Text(
-                          'Watchlist',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        watchlist == null
-                            ? Center(child: CircularProgressIndicator()) // Loading state for watchlist
-                            : watchlist!.isEmpty
-                                ? Text(
-                                    'Your watchlist is empty.',
-                                    style: TextStyle(color: Colors.white70),
-                                  )
-                                : ListView.builder(
-                                    shrinkWrap: true,
-                                    physics: NeverScrollableScrollPhysics(),
-                                    itemCount: watchlist!.length,
-                                    itemBuilder: (context, index) {
-                                      final movie = watchlist![index];
-                                      return ListTile(
-                                        title: Text(
-                                          movie.title,
-                                          style: TextStyle(color: Colors.white),
-                                        ),
-                                        subtitle: Text(
-                                          movie.releaseDate,
-                                          style: TextStyle(color: Colors.white70),
-                                        ),
-                                        trailing: Icon(
-                                          Icons.movie,
-                                          color: Colors.white,
-                                        ),
-                                      );
-                                    },
-                                  ),
-                      ],
-                    ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 20),
+            Center(
+              child: CircleAvatar(
+                radius: 50,
+                backgroundColor: Colors.grey[800],
+                child: const Icon(Icons.person, size: 50, color: Colors.white),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'Name: $userName', // Displaying the username extracted from email
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Email: $userEmail', // Displaying the email
+              style: const TextStyle(fontSize: 16),
+            ),
+            const SizedBox(height: 30),
+            const Text(
+              'Watchlist',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: 0, // Removed the demo watchlist movies
+                itemBuilder: (context, index) {
+                  return const SizedBox(); // No list items to display
+                },
+              ),
+            ),
+            const SizedBox(height: 20),
+            Center(
+              child: ElevatedButton(
+                onPressed: _logout,
+                child: const Text('Logout'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFE2C1A4),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 12, horizontal: 40),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
                   ),
                 ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      backgroundColor: Colors.white, // Changed background color to white
     );
   }
 }
