@@ -42,7 +42,7 @@ A beautifully designed Flutter application to browse and explore movies. The app
 ![Tv Shows Screen](assets/screenshots/tvshows.png)
 
 ### 🔍 Tv Shows Details
-![Tv show details Screen](assets/screenshots/Details2.png)
+![Tv show details Screen](assets/screenshots/details2.png)
 
 ---
 
