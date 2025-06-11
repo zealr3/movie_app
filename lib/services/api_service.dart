@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 //import 'package:movie_app/models/movie.dart'; // Add the movie model here
 
 class ApiService {
-  static const String baseUrl = 'http://192.168.43.149:5000';
+  static const String baseUrl = 'http://192.168.130.195:5000';
   static const String apiPath = '/api/users';
   static const String signupPath = '$apiPath/signup';
   static const String loginPath = '$apiPath/login';
@@ -20,7 +20,7 @@ class ApiService {
         uri,
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
+          'Accept': 'application/json', 
         },
         body: jsonEncode({
           'email': email,

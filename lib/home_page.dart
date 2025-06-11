@@ -81,7 +81,7 @@ class _HomePageState extends State<HomePage> {
   Widget _buildHomeContent() {
     return SingleChildScrollView(
       child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 25),
+        //margin: EdgeInsets.symmetric(horizontal: 25),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:movie_app/models/movie.dart'; // Adjust the path to your Movie model file
 
 class WatchlistService {
-  final String baseUrl = 'http://192.168.153.195:5000/api/users/watchlist';
+  final String baseUrl = 'http://192.168.130.195:5000/api/users/watchlist';
   final String token;
 
   WatchlistService(this.token);
