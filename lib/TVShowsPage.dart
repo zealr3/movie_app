@@ -6,7 +6,7 @@ import 'dart:convert';
 //import 'tv_show_details_page.dart'; // Import the details page
 
 class TVShowsPage extends StatelessWidget {
-  final String apiKey = '565b880331fb02dfe1fc15149be91f15';
+  final String apiKey = 'api_key';
 
   Future<List<dynamic>> fetchPopularTVShows() async {
     final response = await http.get(Uri.parse('https://api.themoviedb.org/3/tv/popular?api_key=$apiKey&language=en-US'));
